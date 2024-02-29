@@ -19,22 +19,26 @@ const handleFile = upload.single('image');
 
 const crearTarea = async (req, res) => {
     try {
-            const {tipo_tarea,instrucciones,folio_sic,asignado_a}  = req.body;
+            const {tarea}  = req.body;
             // Primero, realizamos la inserción
-            const insertResult = await tareasPromisePool.query(
-                `INSERT INTO tareas(tipo, instruccion, folio_sic, asignado) VALUES (?,?,?,?)`,
-                [tipo_tarea,instrucciones,folio_sic,asignado_a]
-            );
+            console.log(tarea)
+            let propiedadesTarea = JSON.parse(tarea)
+            console.log(propiedadesTarea)
+            console.log(req.file);
+            // const insertResult = await tareasPromisePool.query(
+            //     `INSERT INTO tareas(tipo, instruccion, folio_sic, asignado) VALUES (?,?,?,?)`,
+            //     [tipo_tarea,instrucciones,folio_sic,asignado_a]
+            // );
 
-            // Luego, obtenemos el último ID insertado
-            const lastInsertedId = insertResult[0].insertId;
+            // // Luego, obtenemos el último ID insertado
+            // const lastInsertedId = insertResult[0].insertId;
 
             res.json({
                 ok: true,
                 msg: 'POST TAREA CREADA',
                 data: {
                     message: 'Tarea creada exitosamente',
-                    id: lastInsertedId
+                    //id: lastInsertedId
                 },
             });
     } catch (error) {
