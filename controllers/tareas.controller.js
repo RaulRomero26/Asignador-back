@@ -24,21 +24,54 @@ const crearTarea = async (req, res) => {
             console.log(tarea)
             let propiedadesTarea = JSON.parse(tarea)
             console.log(propiedadesTarea)
-            console.log(req.file);
-            // const insertResult = await tareasPromisePool.query(
-            //     `INSERT INTO tareas(tipo, instruccion, folio_sic, asignado) VALUES (?,?,?,?)`,
-            //     [tipo_tarea,instrucciones,folio_sic,asignado_a]
-            // );
+            let columns = Object.keys(propiedadesTarea).join(', '); // Obtener nombres de las propiedades
+            let placeholders = Object.keys(propiedadesTarea).map(() => '?').join(', '); // Generar marcadores de posición para los valores
+            let values = Object.values(propiedadesTarea); // Obtener los valores de las propiedades
+            
+            const insertResult = await tareasPromisePool.query(
+                `INSERT INTO tareas(${columns}) VALUES (${placeholders})`,
+                values
+            );
 
-            // // Luego, obtenemos el último ID insertado
-            // const lastInsertedId = insertResult[0].insertId;
+            // Luego, obtenemos el último ID insertado
+            const lastInsertedId = insertResult[0].insertId;
+
+            if (req.file) {
+                const tipoMIME = req.file.mimetype;
+                let extension = '';
+                switch (tipoMIME) {
+                    case 'image/jpeg':
+                        extension = '.jpeg';
+                        break;
+                    case 'image/jpg':
+                        extension = '.jpg';
+                        break;
+                    case 'image/png':
+                        extension = '.png';
+                        break;
+                    default:
+                        break;
+                }
+
+            }
+
+            // Finalmente, realizamos la actualización
+            const updateResult = await tareasPromisePool.query(
+                `UPDATE tarea SET img = CONCAT(?, ?) WHERE id_tarea = ?`,
+                [lastInsertedId, extension, lastInsertedId]
+            );
+
+            const uploadPath = path.join(__dirname, '.../public/asignador/tareas', `${lastInsertedId}${extension}`);
+
+            // Escribe el archivo en la ubicación deseada
+            fs.writeFileSync(uploadPath, req.file.buffer);
 
             res.json({
                 ok: true,
                 msg: 'POST TAREA CREADA',
                 data: {
                     message: 'Tarea creada exitosamente',
-                    //id: lastInsertedId
+                    id: lastInsertedId
                 },
             });
     } catch (error) {
