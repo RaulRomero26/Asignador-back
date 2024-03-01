@@ -53,18 +53,18 @@ const crearTarea = async (req, res) => {
                         break;
                 }
 
+                // Finalmente, realizamos la actualización
+                const updateResult = await tareasPromisePool.query(
+                    `UPDATE tareas SET img = CONCAT(?, ?) WHERE id_tarea = ?`,
+                    [lastInsertedId, extension, lastInsertedId]
+                );
+                const uploadPath = path.join(__dirname, '../public/asignador/tareas', `${lastInsertedId}${extension}`);
+    
+                // Escribe el archivo en la ubicación deseada
+                fs.writeFileSync(uploadPath, req.file.buffer);
             }
 
-            // Finalmente, realizamos la actualización
-            const updateResult = await tareasPromisePool.query(
-                `UPDATE tarea SET img = CONCAT(?, ?) WHERE id_tarea = ?`,
-                [lastInsertedId, extension, lastInsertedId]
-            );
 
-            const uploadPath = path.join(__dirname, '.../public/asignador/tareas', `${lastInsertedId}${extension}`);
-
-            // Escribe el archivo en la ubicación deseada
-            fs.writeFileSync(uploadPath, req.file.buffer);
 
             res.json({
                 ok: true,
