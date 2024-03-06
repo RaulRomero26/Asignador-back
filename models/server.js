@@ -24,7 +24,8 @@ class Server {
           });
 
         this.asignadorPath = '/api/asignador';
-        // this.cronPath = '/api/cron'
+        this.usuariosPath = '/api/usuarios';
+        this.authPath = '/api/auth';
     }
 
     middelwares() {
@@ -54,6 +55,7 @@ class Server {
 
     routes(){
         //aca se decide que ruta asignarle y de que archivo tomar las configuraciones
+        this.app.use( this.authPath, require('../routes/auth.routes'));//authenticacion
         this.app.use( this.asignadorPath, require('../routes/tareas.routes'));//alertas
         //this.app.use( this.cronPath, require('../routes/cron.routes'));//cron
     }

@@ -85,18 +85,32 @@ const crearTarea = async (req, res) => {
 
 const getAllTareas = async (req, res) => {
     try {
-        const { page = 1, per_page } = req.query;
-        
+        const { page = 1, per_page, asignadas } = req.query;
+        console.log('BUSCANDO ASIGNADAS A:',asignadas)
         const offset = (page - 1) * per_page;
+        let queryResult,totalRegisters;
+        if(asignadas != 'ALL'){
+            queryResult = await tareasPromisePool.query(
+                `SELECT * FROM tareas WHERE asignado_a = ? LIMIT ?, ?;`,
+                [asignadas,offset, parseInt(per_page)]
+            );
+            
+            totalRegisters = await tareasPromisePool.query(
+                `SELECT COUNT(*) AS total FROM tareas WHERE asignado_a = ?;`,
+                [asignadas]
+            )
+        }else{
+            queryResult = await tareasPromisePool.query(
+                `SELECT * FROM tareas LIMIT ?, ?;`,
+                [offset, parseInt(per_page)]
+            );
+            
+            totalRegisters = await tareasPromisePool.query(
+                `SELECT COUNT(*) AS total FROM tareas ;`
+            )
+        }
 
-        const queryResult = await tareasPromisePool.query(
-            `SELECT * FROM tareas LIMIT ?, ?;`,
-            [offset, parseInt(per_page)]
-        );
-        
-        const totalRegisters = await tareasPromisePool.query(
-            `SELECT COUNT(*) AS total FROM tareas ;`
-        )
+      
 
         res.json({
             ok: true,
