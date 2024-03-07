@@ -85,13 +85,42 @@ const crearTarea = async (req, res) => {
 
 const getAllTareas = async (req, res) => {
     try {
-        const { page = 1, per_page, asignadas } = req.query;
-        console.log('BUSCANDO ASIGNADAS A:',asignadas)
+        const { page = 1, per_page, asignadas,orden,mostrar } = req.query;
         const offset = (page - 1) * per_page;
         let queryResult,totalRegisters;
+
+        let ordenString = '';
+       
+        switch (orden) {
+            case 'MAYOR PRIORIDAD': // Cambié 'MARYOR PRIORIDAD' a 'MAYOR PRIORIDAD'
+                ordenString = `ORDER BY CASE prioridad_tarea WHEN 'BAJA' THEN 4 WHEN 'NORMAL' THEN 3 WHEN 'MEDIA' THEN 2 WHEN 'ALTA' THEN 1 END`
+                break;
+            case 'FECHA ASIGNACION':
+                ordenString = `ORDER BY fecha_asignacion DESC`;
+                break;
+            default:
+                ordenString = '';
+                break;
+        }
+
+        let mostrarString = '';
+        
+
+        switch (mostrar) {
+            case 'EN PROGRESO':
+                mostrarString = `estado = 'EN PROCESO'`
+                break;
+            case 'COMPLETADAS':
+                mostrarString = `estado = 'COMPLETADA'`    
+                break;
+        
+            default:
+                break;
+        }
+       
         if(asignadas != 'ALL'){
             queryResult = await tareasPromisePool.query(
-                `SELECT * FROM tareas WHERE asignado_a = ? LIMIT ?, ?;`,
+                `SELECT * FROM tareas WHERE asignado_a = ? AND ${mostrarString} ${ordenString}  LIMIT ?, ?;`,
                 [asignadas,offset, parseInt(per_page)]
             );
             
@@ -100,8 +129,9 @@ const getAllTareas = async (req, res) => {
                 [asignadas]
             )
         }else{
+            console.log(ordenString)
             queryResult = await tareasPromisePool.query(
-                `SELECT * FROM tareas LIMIT ?, ?;`,
+                `SELECT * FROM tareas WHERE ${mostrarString} ${ordenString} LIMIT ?, ?;`,
                 [offset, parseInt(per_page)]
             );
             
