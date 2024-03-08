@@ -103,8 +103,14 @@ const revalidarToken = async (req,res = response)=> {
 const logout = async (req, res = response) => {
 
 
-  const token = req.header('x-token') // como se especifique aqui es como el front debe de mandarlo
+
+
+    const token = req.header('x-token') // como se especifique aqui es como el front debe de mandarlo
+
+
+  if(req.header('x-user')){
   const id_ls = JSON.parse(req.header('x-user')).id
+  }
 
   if(!token){
       return res.status(401).json({
@@ -126,11 +132,12 @@ const logout = async (req, res = response) => {
     })
   } catch (error) {
     console.log(error);
-
-     await tareasPromisePool.query(
+    if(req.header('x-user')){
+      await tareasPromisePool.query(
        `UPDATE usuarios SET sesion_iniciada = 0 WHERE id = ?`,
        [id_ls]
-   )
+      )
+    }
 
     res.status(500).json({
       msg: 'Hable con el administrador'
