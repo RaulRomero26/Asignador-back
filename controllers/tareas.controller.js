@@ -166,15 +166,43 @@ const getTareaById = async(req, res) => {
         const { id = 1} = req.query;
 
         const queryResult = await tareasPromisePool.query(
-            `SELECT * FROM tareas WHERE id_tarea = ?`,
+            `SELECT *, DATE_FORMAT(hora_inicio, '%Y-%m-%d %H:%i') as 'hora_inicio_formateada' , DATE_FORMAT(hora_fin, '%Y-%m-%d %H:%i') as 'hora_fin_formateada' FROM tareas WHERE id_tarea = ?`,
             [id]
         );
-        console.log( queryResult[0])
+        console.log( queryResult[0][0])
+        respuestas = [];
+        switch (queryResult[0][0].tipo_tarea) {
+            case 'ENTREVISTA':
+                respuestas = await tareasPromisePool.query(
+                    `SELECT * FROM tareas_entrevista WHERE  id_tarea = ?`,
+                    [Number(id)]
+                );
+
+                break;
+            case 'BARRIDO':
+                respuestas = await tareasPromisePool.query(
+                    `SELECT * FROM tareas_barrido WHERE  id_tarea = ?`,
+                    [Number(id)]
+                );
+
+                break;
+            case 'VIGILANCIA':
+                respuestas = await tareasPromisePool.query(
+                    `SELECT * FROM tareas_vigilancia WHERE  id_tarea = ?`,
+                    [Number(id)]
+                );
+
+                break;
+        
+            default:
+                break;
+        }
         res.json({
             ok: true,
             msg: 'GET TAREA ID',
             data: {
                 tareas: queryResult[0],
+                respuestas: respuestas[0]
             },
         });
     } catch (error) {

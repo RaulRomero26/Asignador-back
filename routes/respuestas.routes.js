@@ -13,7 +13,7 @@ const path = require('path');
 //se importa el router de express
 const { Router } = require('express');
 //se importan las funciones controladoras para los diferentes enpoint 
-const { responderEntrevista,handleFile, responderBarrido, responderVigilancia, multerUpload  } = require('../controllers/respuestas.controller');
+const { responderEntrevista,handleFile, responderBarrido, responderVigilancia, responderBusqueda, responderOtra, multerUpload, multerUploadBusqueda, multerUploadOtra  } = require('../controllers/respuestas.controller');
 //se importa el middleware para validar las rutas
 // const { validarJWT } = require('../middlewares/validar-jwt');
 // //se crea el roter para manejar las peticiones
@@ -28,6 +28,8 @@ const router = Router();
 router.post('/responder-entrevista', handleFile, responderEntrevista )
 router.post('/responder-barrido',handleFile, responderBarrido)
 router.post('/responder-vigilancia',multerUpload.any(), responderVigilancia)
+router.post('/responder-busqueda',multerUploadBusqueda.any(), responderBusqueda)
+router.post('/responder-otra',multerUploadOtra.any(), responderOtra)
 
 //se exporta el router para usarlo en el exterior
 module.exports = router;

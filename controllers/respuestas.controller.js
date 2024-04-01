@@ -39,6 +39,43 @@ const multerUpload = multer({
     },
 })
 
+const multerUploadBusqueda = multer({
+    storage: multer.diskStorage({
+        destination: path.join(CURRENT_DIR,'../public/asignador/tareas/busqueda'),
+        filename: (req, file, cb) => {
+            const fileExtension = path.extname(file.originalname)
+            const filename = file.originalname.split(fileExtension)[0];
+            console.log('filename',filename)
+            cb(null,`${filename}-${Date.now()}${fileExtension}`)
+        }
+    }),
+    fileFilter: (req,file, cb) => {
+        if(MIMETYPES.includes(file.mimetype)) cb(null,true)
+        else cb(new Error (`Only ${MIMETYPES.join(' ')} mimetypes are awllowed`))
+    } ,
+    limits: {
+        fieldSize: 10000000
+    },
+})
+
+const multerUploadOtra = multer({
+    storage: multer.diskStorage({
+        destination: path.join(CURRENT_DIR,'../public/asignador/tareas/otra'),
+        filename: (req, file, cb) => {
+            const fileExtension = path.extname(file.originalname)
+            const filename = file.originalname.split(fileExtension)[0];
+            console.log('filename',filename)
+            cb(null,`${filename}-${Date.now()}${fileExtension}`)
+        }
+    }),
+    fileFilter: (req,file, cb) => {
+        if(MIMETYPES.includes(file.mimetype)) cb(null,true)
+        else cb(new Error (`Only ${MIMETYPES.join(' ')} mimetypes are awllowed`))
+    } ,
+    limits: {
+        fieldSize: 10000000
+    },
+})
 
 
 const responderEntrevista = async (req, res) => {
@@ -175,11 +212,89 @@ const responderVigilancia = async (req, res) => {
     }
 }
 
+const responderBusqueda = async (req, res) => {
+    try {
+
+        console.log(req.body)
+        const {busquedas,id_tarea} = req.body;
+
+        console.log(req.files)
+
+        arrayBus = JSON.parse(busquedas);
+        arrayBus.forEach( async (busqueda,index) => {
+            const queryResult = await tareasPromisePool.query(
+                `INSERT INTO tareas_busqueda (id_tarea, descripcion, img) VALUES (?,?,?)`,
+                [id_tarea, busqueda.descripcion, req.files[index].filename]
+            )
+        })
+
+        const updateResult = await tareasPromisePool.query(
+            `UPDATE tareas SET estado = 'COMPLETADA', fecha_completada = NOW() WHERE id_tarea = ?`,
+            [id_tarea]
+        )
+
+        res.json({
+            ok: true,
+            msg: 'Busqueda respondida',
+            data: {
+                message: 'Busqueda respondida correctamente',
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Internal Server Error',
+        });
+    }
+}
+
+const responderOtra = async (req, res) => {
+    try {
+
+        console.log(req.body)
+        const {otras,id_tarea} = req.body;
+
+        console.log(req.files)
+
+        arrayOtr = JSON.parse(otras);
+        arrayOtr.forEach( async (otra,index) => {
+            const queryResult = await tareasPromisePool.query(
+                `INSERT INTO tareas_otra (id_tarea, descripcion, img) VALUES (?,?,?)`,
+                [id_tarea, otra.descripcion, req.files[index].filename]
+            )
+        })
+
+        const updateResult = await tareasPromisePool.query(
+            `UPDATE tareas SET estado = 'COMPLETADA', fecha_completada = NOW() WHERE id_tarea = ?`,
+            [id_tarea]
+        )
+
+        res.json({
+            ok: true,
+            msg: 'Otra respondida',
+            data: {
+                message: 'Otra respondida correctamente',
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Internal Server Error',
+        });
+    }
+}
+
 //se exporta la funcion para usarla en el exterior
 module.exports = {
     responderEntrevista,
     responderBarrido,
     responderVigilancia,
+    responderBusqueda,
+    responderOtra,
     handleFile,
-    multerUpload
+    multerUpload,
+    multerUploadBusqueda,
+    multerUploadOtra
 }

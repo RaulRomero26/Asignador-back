@@ -26,6 +26,7 @@ class Server {
         this.asignadorPath = '/api/asignador';
         this.usuariosPath = '/api/usuarios';
         this.authPath = '/api/auth';
+        this.imagesPath = '/api/images';
     }
 
     middelwares() {
@@ -58,6 +59,7 @@ class Server {
         this.app.use( this.authPath, require('../routes/auth.routes'));//authenticacion
         this.app.use( this.asignadorPath, require('../routes/tareas.routes'));//tareas
         this.app.use( this.asignadorPath, require('../routes/respuestas.routes'));//respuestas
+        this.app.use( this.imagesPath, require('../routes/images.routes'));
         //this.app.use( this.cronPath, require('../routes/cron.routes'));//cron
     }
     
