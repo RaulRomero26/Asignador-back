@@ -13,7 +13,10 @@ const { tareasPromisePool } = require('../database/configTareas');
 */
 const validarJWT = async (req = request ,res = response, next) => {
     const token = req.header('x-token') // como se especifique aqui es como el front debe de mandarlo
-    const id_ls = JSON.parse(req.header('x-user')).id
+    let id_ls;
+    if(req.header('x-user')){
+        id_ls = JSON.parse(req.header('x-user')).id
+    }
     if(!token){
         return res.status(401).json({
             msg: 'No hay token la peticion'
@@ -55,11 +58,13 @@ const validarJWT = async (req = request ,res = response, next) => {
         next();// con la funcion next se saca del middlware y se abre paso a lo que siga
     } catch (error) {
         console.log(error);
+        if(req.header('x-user')){
 
-        await tareasPromisePool.query(
-            `UPDATE usuarios SET sesion_iniciada = 0 WHERE id = ?`,
-            [id_ls]
-        )
+            await tareasPromisePool.query(
+                `UPDATE usuarios SET sesion_iniciada = 0 WHERE id = ?`,
+                [id_ls]
+            )
+        }
 
         res.status(401).json({
             msg: 'Token no valido'

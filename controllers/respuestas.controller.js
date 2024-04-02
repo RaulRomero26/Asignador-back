@@ -253,11 +253,11 @@ const responderOtra = async (req, res) => {
     try {
 
         console.log(req.body)
-        const {otras,id_tarea} = req.body;
+        const {otra,id_tarea} = req.body;
 
         console.log(req.files)
 
-        arrayOtr = JSON.parse(otras);
+        arrayOtr = JSON.parse(otra);
         arrayOtr.forEach( async (otra,index) => {
             const queryResult = await tareasPromisePool.query(
                 `INSERT INTO tareas_otra (id_tarea, descripcion, img) VALUES (?,?,?)`,

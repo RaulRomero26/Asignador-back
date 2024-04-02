@@ -193,6 +193,22 @@ const getTareaById = async(req, res) => {
                 );
 
                 break;
+
+            case 'BUSQUEDA':
+                respuestas = await tareasPromisePool.query(
+                    `SELECT * FROM tareas_busqueda WHERE  id_tarea = ?`,
+                    [Number(id)]
+                );
+
+                break;
+
+            case 'OTRA':
+                respuestas = await tareasPromisePool.query(
+                    `SELECT * FROM tareas_otra WHERE  id_tarea = ?`,
+                    [Number(id)]
+                );
+
+                break;
         
             default:
                 break;
