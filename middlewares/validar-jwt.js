@@ -32,8 +32,8 @@ const validarJWT = async (req = request ,res = response, next) => {
             `SELECT * FROM usuarios WHERE id = ?`,
             [id]
         )
-        if(usuario.current_active_token != null && usuario.current_active_token != ''){
-            if(usuario.current_active_token != token){
+        if(usuario[0][0].current_active_token != null && usuario[0][0].current_active_token != ''){
+            if(usuario[0][0].current_active_token != token){
                 return res.status(401).json({
                     msg: 'Token no valido - hay otra sesion iniciada en otro dispositivo'
                 })
@@ -42,6 +42,10 @@ const validarJWT = async (req = request ,res = response, next) => {
 
         //console.log('veo el usuario del renew ', usuario)
         if(!usuario){
+            await tareasPromisePool.query(
+                `UPDATE usuarios SET sesion_iniciada = 0 WHERE id = ?`,
+                [id_ls]
+            )
             return res.status(401).json({
                 msg: 'Token no valido - usuario no existe DB'
             })

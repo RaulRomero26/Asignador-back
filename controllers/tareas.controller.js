@@ -191,12 +191,20 @@ const getTareaById = async(req, res) => {
                     `SELECT * FROM tareas_vigilancia WHERE  id_tarea = ?`,
                     [Number(id)]
                 );
+                detenciones = await tareasPromisePool.query(
+                    `SELECT * FROM detenciones WHERE  id_tarea = ?`,
+                    [Number(id)]
+                );
 
                 break;
 
             case 'BUSQUEDA':
                 respuestas = await tareasPromisePool.query(
                     `SELECT * FROM tareas_busqueda WHERE  id_tarea = ?`,
+                    [Number(id)]
+                );
+                detenciones = await tareasPromisePool.query(
+                    `SELECT * FROM detenciones WHERE  id_tarea = ?`,
                     [Number(id)]
                 );
 
@@ -218,7 +226,8 @@ const getTareaById = async(req, res) => {
             msg: 'GET TAREA ID',
             data: {
                 tareas: queryResult[0],
-                respuestas: respuestas[0]
+                respuestas: respuestas[0],
+                detenciones: detenciones[0] | []
             },
         });
     } catch (error) {

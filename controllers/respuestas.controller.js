@@ -76,6 +76,24 @@ const multerUploadOtra = multer({
         fieldSize: 10000000
     },
 })
+const multerUploadDetencion = multer({
+    storage: multer.diskStorage({
+        destination: path.join(CURRENT_DIR,'../public/asignador/tareas/detenciones'),
+        filename: (req, file, cb) => {
+            const fileExtension = path.extname(file.originalname)
+            const filename = file.originalname.split(fileExtension)[0];
+            console.log('filename',filename)
+            cb(null,`${filename}-${Date.now()}${fileExtension}`)
+        }
+    }),
+    fileFilter: (req,file, cb) => {
+        if(MIMETYPES.includes(file.mimetype)) cb(null,true)
+        else cb(new Error (`Only ${MIMETYPES.join(' ')} mimetypes are awllowed`))
+    } ,
+    limits: {
+        fieldSize: 10000000
+    },
+})
 
 
 const responderEntrevista = async (req, res) => {
@@ -286,6 +304,42 @@ const responderOtra = async (req, res) => {
     }
 }
 
+const responderDetencion = async(req,res) => {
+    try {
+
+        console.log(req.body)
+        const {detenciones,id_tarea} = req.body;
+
+        arrayDet = JSON.parse(detenciones);
+        arrayDet.forEach( async (detencion,index) => {
+            const queryResult = await tareasPromisePool.query(
+                `INSERT INTO detenciones (id_tarea, nombre, direccion, no_remision,motivo) VALUES (?,?,?,?,?)`,
+                [id_tarea, detencion.nombre, detencion.direccion, detencion.no_remision,detencion.motivo]
+            )
+        })
+
+
+        const updateResult = await tareasPromisePool.query(
+            `UPDATE tareas SET estado = 'COMPLETADA', fecha_completada = NOW() WHERE id_tarea = ?`,
+            [id_tarea]
+        )
+
+        res.json({
+            ok: true,
+            msg: 'Detenciones respondido',
+            data: {
+                message: 'Detenciones respondido correctamente',
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Internal Server Error',
+        });
+    }
+}
+
 //se exporta la funcion para usarla en el exterior
 module.exports = {
     responderEntrevista,
@@ -294,6 +348,8 @@ module.exports = {
     responderBusqueda,
     responderOtra,
     handleFile,
+    responderDetencion,
+    multerUploadDetencion,
     multerUpload,
     multerUploadBusqueda,
     multerUploadOtra
