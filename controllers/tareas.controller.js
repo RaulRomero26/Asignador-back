@@ -171,6 +171,7 @@ const getTareaById = async(req, res) => {
         );
         console.log( queryResult[0][0])
         respuestas = [];
+        detenciones = [];
         switch (queryResult[0][0].tipo_tarea) {
             case 'ENTREVISTA':
                 respuestas = await tareasPromisePool.query(
@@ -195,7 +196,7 @@ const getTareaById = async(req, res) => {
                     `SELECT * FROM detenciones WHERE  id_tarea = ?`,
                     [Number(id)]
                 );
-
+                console.log(detenciones[0])
                 break;
 
             case 'BUSQUEDA':
@@ -227,7 +228,7 @@ const getTareaById = async(req, res) => {
             data: {
                 tareas: queryResult[0],
                 respuestas: respuestas[0],
-                detenciones: detenciones[0] | []
+                detenciones: detenciones[0]
             },
         });
     } catch (error) {
