@@ -107,7 +107,7 @@ const logout = async (req, res = response) => {
 
     const token = req.header('x-token') // como se especifique aqui es como el front debe de mandarlo
 
-    let id_ls = 0;
+    let id_ls;
     if(req.header('x-user')){
       id_ls = JSON.parse(req.header('x-user')).id
     }
