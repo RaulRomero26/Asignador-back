@@ -62,6 +62,19 @@ const validarJWT = async (req = request ,res = response, next) => {
         next();// con la funcion next se saca del middlware y se abre paso a lo que siga
     } catch (error) {
         console.log(error);
+
+        if (error instanceof jwt.TokenExpiredError) {
+            await tareasPromisePool.query(
+                `UPDATE usuarios SET sesion_iniciada = 0 WHERE id = ?`,
+                [id_ls]
+            )
+            return res.status(403).json({
+                msg: 'Token expirado'
+            });
+        }
+    
+
+
         if(req.header('x-user')){
 
             await tareasPromisePool.query(

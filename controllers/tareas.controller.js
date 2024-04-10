@@ -58,10 +58,40 @@ const crearTarea = async (req, res) => {
                     `UPDATE tareas SET img = CONCAT(?, ?) WHERE id_tarea = ?`,
                     [lastInsertedId, extension, lastInsertedId]
                 );
-                const uploadPath = path.join(__dirname, '../public/asignador/tareas', `${lastInsertedId}${extension}`);
-    
+                let carpeta ='';
+                switch (propiedadesTarea.tipo_tarea) {
+                    case 'BUSQUEDA':
+                        carpeta = 'busqueda';
+                        break;
+                    case 'VIGILANCIA':
+                        carpeta = 'vigilancia';
+                        break
+                    case 'ENTREVISTA':
+                        carpeta = 'entrevista';
+                        break;
+                    case 'BARRIDO':
+                        carpeta = 'barrido';
+                        break;
+                    case 'OTRA':
+                        carpeta = 'otra';
+                        break;
+                    default:
+                        carpeta = 'otra';
+                        break;
+                }
+
+
+                const uploadPath = path.join(__dirname, '../public/asignador/tareas/tareas',`${carpeta}`,`${lastInsertedId}`);
+                console.log(uploadPath)
+                // Crear el directorio si no existe
+                if (!fs.existsSync(uploadPath)) {
+                    fs.mkdirSync(uploadPath, { recursive: true });
+                }
+
+                const filePath = path.join(uploadPath, `${lastInsertedId}${extension}`);
+
                 // Escribe el archivo en la ubicación deseada
-                fs.writeFileSync(uploadPath, req.file.buffer);
+                fs.writeFileSync(filePath, req.file.buffer);
             }
 
 

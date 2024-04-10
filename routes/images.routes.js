@@ -21,7 +21,7 @@ const router = Router();
 // router.use(validarJWT);
 //Nota: se pone / la ruta real se configura por el middleware .use() en la clase del server
 //endpoint que regresa todos los usuarios
-router.get('/:type/:image', imageGet ) //no se ejecuta se manda la referencia a la funcion
+router.get('/*', imageGet ) //no se ejecuta se manda la referencia a la funcion
 
 //exportacion del router al exterior
 module.exports = router;

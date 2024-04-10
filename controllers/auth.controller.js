@@ -132,6 +132,17 @@ const logout = async (req, res = response) => {
     })
   } catch (error) {
     console.log(error);
+
+    if (error.message === 'jwt malformed') {
+      console.log('entre al error de malformed')
+      await tareasPromisePool.query(
+          `UPDATE usuarios SET sesion_iniciada = 0 WHERE id = ?`,
+          [id_ls]
+      )
+      return res.status(400).json({
+          msg: 'Token malformado'
+      });
+  }
     if(req.header('x-user')){
       await tareasPromisePool.query(
        `UPDATE usuarios SET sesion_iniciada = 0 WHERE id = ?`,

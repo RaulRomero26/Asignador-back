@@ -16,11 +16,13 @@ const upload = multer({ storage: storage });
 const imageGet = async (req, res) => {
     try {
 
-        const type = req.params.type;
-        const image = req.params.image;
-        //console.log(__dirname);
-        const pathImage = path.resolve(__dirname,`../public/asignador/tareas/${type}/${image}`);
-        //console.log('VER EL PATH:',pathImage);
+        // const type = req.params.type;
+        // const image = req.params.image;
+        // //console.log(__dirname);
+        // const pathImage = path.resolve(__dirname,`../public/asignador/tareas/${type}/${image}`);
+        const pathSegments = req.params[0].split('/');
+        const pathImage = path.resolve(__dirname, '../public/asignador/tareas', ...pathSegments);
+        console.log('VER EL PATH:',pathImage);
         if(await fs.existsSync(pathImage)){
            res.sendFile(pathImage); 
         }else{
