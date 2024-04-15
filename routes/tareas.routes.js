@@ -13,7 +13,7 @@ const path = require('path');
 //se importa el router de express
 const { Router } = require('express');
 //se importan las funciones controladoras para los diferentes enpoint 
-const { crearTarea,getAllTareas,handleFile,getTareaById  } = require('../controllers/tareas.controller');
+const { crearTarea,getAllTareas,handleFile,getTareaById,saveSubscription,sendNotification  } = require('../controllers/tareas.controller');
 //se importa el middleware para validar las rutas
 // const { validarJWT } = require('../middlewares/validar-jwt');
 // //se crea el roter para manejar las peticiones
@@ -28,6 +28,8 @@ const router = Router();
 router.get('/tareas', getAllTareas )
 router.get('/tarea-id', getTareaById )
 router.post('/crear-tarea', handleFile, crearTarea )
+router.post('/save-subscription', handleFile, saveSubscription )
+router.post('/send-notification', handleFile, sendNotification )
 
 //se exporta el router para usarlo en el exterior
 module.exports = router;
