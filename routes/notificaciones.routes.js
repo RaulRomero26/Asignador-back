@@ -13,7 +13,7 @@ const path = require('path');
 //se importa el router de express
 const { Router } = require('express');
 //se importan las funciones controladoras para los diferentes enpoint 
-const { crearTarea,getAllTareas,handleFile,getTareaById  } = require('../controllers/tareas.controller');
+const { saveSubscription,sendNotification  } = require('../controllers/notificaciones.controller');
 //se importa el middleware para validar las rutas
 // const { validarJWT } = require('../middlewares/validar-jwt');
 // //se crea el roter para manejar las peticiones
@@ -24,11 +24,9 @@ const router = Router();
     un token valido en los headers, de esta forma se applica un middleware de forma "global" sin tener 
     que especificarlo endpoint a endpoint
 */ 
-//router.use(validarJWT);
-router.get('/tareas', getAllTareas )
-router.get('/tarea-id', getTareaById )
-router.post('/crear-tarea', handleFile, crearTarea )
 
+router.post('/save-subscription', saveSubscription )
+router.post('/send-notification', sendNotification )
 
 //se exporta el router para usarlo en el exterior
 module.exports = router;
