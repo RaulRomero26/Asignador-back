@@ -8,10 +8,10 @@ const mysql = require('mysql2');
 */
 
 const tareasPool = mysql.createPool({
-    host: process.env.DBHOSTTAREAS,
-    user: process.env.DBUSERTAREAS,
-    password: process.env.DBPASSWORDTAREAS,
-    database: process.env.DBDATABASETAREAS,
+    host: 'localhost',
+    user: 'codybase',
+    password: 'codybase',
+    database: 'asignador_tareas',
     waitForConnections: true,
     connectionLimit: 50,
     charset: 'utf8mb4',

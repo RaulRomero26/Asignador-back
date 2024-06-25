@@ -7,6 +7,10 @@
 const { response, request } = require('express');
 
 const webPush = require('web-push');
+// En tu controlador
+const events = require('events');
+const eventEmitter = new events.EventEmitter();
+
 //se importa el conector con la base de datos
 const { tareasPromisePool } = require('../database/configTareas');
 
@@ -262,6 +266,12 @@ const getTareaById = async(req, res) => {
             default:
                 break;
         }
+        //aca tenemos el folio sic
+        folio_sic = queryResult[0][0].folio_sic;
+
+        // Emitir un evento personalizado
+        eventEmitter.emit('buscarInformacion', { folio_sic });
+
         res.json({
             ok: true,
             msg: 'GET TAREA ID',
@@ -286,4 +296,5 @@ module.exports = {
     getAllTareas,
     getTareaById,
     handleFile,
+    eventEmitter
 }
