@@ -35,15 +35,16 @@ const enviarUbicacion = async (req, res) => {
         let rangoHorario = false;
         if(tareasUsuario[0].length > 0){
             tieneVigilancias = true;
-            const horaInicio = new Date(tareasUsuario[0][0].hora_inicio);
-            const horaFin = new Date(tareasUsuario[0][0].hora_fin);
-            // Obtener la hora actual
-            const ahora = new Date();
+            const horaInicio = new Date(tareasUsuario[0][0].hora_inicio + 'Z');
+            const horaFin = new Date(tareasUsuario[0][0].hora_fin + 'Z');
+            // Obtener la hora actual en UTC para comparar
+            const ahora = new Date(new Date().toISOString());
+            
             console.log(horaInicio, horaFin, ahora);
             // Verificar si la hora actual está dentro del rango
             const estaDentroDelRango = ((ahora >= horaInicio) && (ahora <= horaFin));
-
-            console.log(estaDentroDelRango); // true si está dentro del rango, false si no
+            
+            console.log(estaDentroDelRango);// true si está dentro del rango, false si no
             if (estaDentroDelRango) {
                 // Código para enviar la alerta
                 const punto = turf.point([x, y]);
