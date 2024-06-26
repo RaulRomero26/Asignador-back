@@ -41,7 +41,7 @@ const enviarUbicacion = async (req, res) => {
             const ahora = new Date();
             console.log(horaInicio, horaFin, ahora);
             // Verificar si la hora actual está dentro del rango
-            const estaDentroDelRango = ahora >= horaInicio && ahora <= horaFin;
+            const estaDentroDelRango = ((ahora >= horaInicio) && (ahora <= horaFin));
 
             console.log(estaDentroDelRango); // true si está dentro del rango, false si no
             if (estaDentroDelRango) {
