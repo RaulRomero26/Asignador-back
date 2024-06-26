@@ -39,6 +39,7 @@ const enviarUbicacion = async (req, res) => {
             const horaFin = new Date(tareasUsuario[0][0].hora_fin);
             // Obtener la hora actual
             const ahora = new Date();
+            console.log(horaInicio, horaFin, ahora);
             // Verificar si la hora actual está dentro del rango
             const estaDentroDelRango = ahora >= horaInicio && ahora <= horaFin;
 
