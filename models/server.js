@@ -34,7 +34,7 @@ class Server {
 
     middelwares() {
         // Desplegar el directorio Público
-        //this.app.use(express.static(path.resolve(__dirname, '../public')));
+        this.app.use(express.static(path.resolve(__dirname, '../public')));
 
         // this.app.use((req, res, next) => {
         //     res.header("Access-Control-Allow-Origin", "*");
