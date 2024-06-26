@@ -7,6 +7,7 @@ const { response, request } = require('express');
 const { tareasPromisePool } = require('../database/configTareas');
 const events = require('events');
 const eventEmitterUbicacion = new events.EventEmitter();
+const moment = require('moment-timezone');
 
 const turf = require('@turf/turf');
 
@@ -35,15 +36,13 @@ const enviarUbicacion = async (req, res) => {
         let rangoHorario = false;
         if(tareasUsuario[0].length > 0){
             tieneVigilancias = true;
-            const horaInicio = new Date(tareasUsuario[0][0].hora_inicio + 'Z');
-            const horaFin = new Date(tareasUsuario[0][0].hora_fin + 'Z');
-            // Obtener la hora actual en UTC para comparar
-            const ahora = new Date(new Date().toISOString());
-            
-            console.log(horaInicio, horaFin, ahora);
-            // Verificar si la hora actual está dentro del rango
-            const estaDentroDelRango = ((ahora >= horaInicio) && (ahora <= horaFin));
-            
+            const horaInicio = moment.tz(tareasUsuario[0][0].hora_inicio, 'UTC').tz('America/Mexico_City');
+            const horaFin = moment.tz(tareasUsuario[0][0].hora_fin, 'UTC').tz('America/Mexico_City');
+            const ahora = moment().tz('America/Mexico_City');
+            console.log('AHORA', ahora.format('YYYY-MM-DD HH:mm:ss'), 'INICIO', horaInicio.format('YYYY-MM-DD HH:mm:ss'), 'FIN', horaFin.format('YYYY-MM-DD HH:mm:ss'));
+            // Ahora puedes comparar `ahora` con `horaInicio` y `horaFin` directamente
+            const estaDentroDelRango = ahora.isBetween(horaInicio, horaFin);
+                        
             console.log(estaDentroDelRango);// true si está dentro del rango, false si no
             if (estaDentroDelRango) {
                 // Código para enviar la alerta
