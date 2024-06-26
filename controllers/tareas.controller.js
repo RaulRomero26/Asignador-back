@@ -290,11 +290,31 @@ const getTareaById = async(req, res) => {
     }
 }
 
+const getTareasVigilanciaHoy = async (req,res) => {
+    try {
+        const tareas = await tareasPromisePool.query(
+            `SELECT * FROM tareas WHERE tipo_tarea = 'VIGILANCIA' AND DATE(hora_inicio) = CURDATE()`
+        );
+        return res.json({
+            ok: true,
+            msg: 'GET TAREAS VIGILANCIA HOY',
+            data: tareas[0]
+        });
+    }catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Internal Server Error',
+        });
+    }
+}
+
 //se exporta la funcion para usarla en el exterior
 module.exports = {
     crearTarea,
     getAllTareas,
     getTareaById,
     handleFile,
-    eventEmitter
+    eventEmitter,
+    getTareasVigilanciaHoy
 }
