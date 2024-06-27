@@ -18,7 +18,7 @@ const upload = multer({ storage: storage });
 const handleFile = upload.single('image');
 
 const CURRENT_DIR = __dirname
-const MIMETYPES = ['image/jpeg','image/png', 'image/svg+xml', 'image/webp'] 
+const MIMETYPES = ['image/jpeg','image/jpg','image/png', 'image/svg+xml', 'image/webp','application/octet-stream'] 
 
 const multerUpload = multer({
     storage: multer.diskStorage({
@@ -43,16 +43,17 @@ const multerUploadBusqueda = multer({
     storage: multer.diskStorage({
         destination: path.join(CURRENT_DIR,'../public/asignador/tareas/busqueda'),
         filename: (req, file, cb) => {
+            console.log('ENTRO', path.extname(file.originalname))
             const fileExtension = path.extname(file.originalname)
             const filename = file.originalname.split(fileExtension)[0];
             console.log('filename',filename)
             cb(null,`${filename}-${Date.now()}${fileExtension}`)
         }
     }),
-    fileFilter: (req,file, cb) => {
-        if(MIMETYPES.includes(file.mimetype)) cb(null,true)
-        else cb(new Error (`Only ${MIMETYPES.join(' ')} mimetypes are awllowed`))
-    } ,
+     fileFilter: (req,file, cb) => {
+         if(MIMETYPES.includes(file.mimetype)) cb(null,true)
+         else cb(new Error (`Only ${MIMETYPES.join(' ')} mimetypes are awllowed`))
+     } ,
     limits: {
         fieldSize: 10000000
     },
@@ -194,41 +195,68 @@ const responderBarrido = async (req, res) => {
 
 const responderVigilancia = async (req, res) => {
     try {
+        console.log(req.body);
+        console.log(req.files);
 
-        console.log(req.body)
-        const {vigilancias,id_tarea} = req.body;
+        const { vigilancias, id_tarea } = req.body;
 
-        console.log(req.files)
+        // Verificar si vigilancias está definido y no es null
+        let arrayVigilancias = [];
+        if (vigilancias) {
+            try {
+                arrayVigilancias = JSON.parse(vigilancias);
+            } catch (error) {
+                throw new Error('Error al parsear vigilancias JSON');
+            }
+        }
 
-        arrayVig = JSON.parse(vigilancias);
-        arrayVig.forEach( async (vigilancia,index) => {
+        // Verificar que hayan llegado archivos
+        if (!req.files || req.files.length === 0) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'No se recibieron archivos',
+            });
+        }
+
+        // Procesar cada vigilancia y su archivo asociado
+        for (let i = 0; i < req.files.length; i++) {
+            const vigilancia = arrayVigilancias[i];
+            const filename = req.files[i].filename;
+
+            // Insertar cada vigilancia en la base de datos
             const queryResult = await tareasPromisePool.query(
-                `INSERT INTO tareas_vigilancia (id_tarea, tipo, descripcion, img) VALUES (?,?,?,?)`,
-                [id_tarea, vigilancia.tipo, vigilancia.descripcion, req.files[index].filename]
-            )
-        })
+                `INSERT INTO tareas_vigilancia (id_tarea, descripcion, img) VALUES (?,?,?)`,
+                [id_tarea, vigilancia.descripcion, filename]
+            );
 
+            console.log(`Vigilancia ${i + 1} insertada correctamente`);
+        }
 
+        // Actualizar el estado de la tarea a COMPLETADA
         const updateResult = await tareasPromisePool.query(
             `UPDATE tareas SET estado = 'COMPLETADA', fecha_completada = NOW() WHERE id_tarea = ?`,
             [id_tarea]
-        )
+        );
 
+        // Responder al cliente
         res.json({
             ok: true,
-            msg: 'Barrido respondido',
+            msg: 'Vigilancia respondida',
             data: {
-                message: 'Barrido respondido correctamente',
+                message: 'Vigilancia respondida correctamente',
             },
         });
     } catch (error) {
-        console.error(error);
+        console.error('Error en responderVigilancia:', error);
         res.status(500).json({
             ok: false,
-            msg: 'Internal Server Error',
+            msg: 'Error interno del servidor',
+            error: error.message, // opcional: enviar el mensaje de error específico
         });
     }
-}
+};
+
+
 
 const responderBusqueda = async (req, res) => {
     try {
@@ -238,13 +266,24 @@ const responderBusqueda = async (req, res) => {
 
         console.log(req.files)
 
-        arrayBus = JSON.parse(busquedas);
-        arrayBus.forEach( async (busqueda,index) => {
-            const queryResult = await tareasPromisePool.query(
-                `INSERT INTO tareas_busqueda (id_tarea, descripcion, img) VALUES (?,?,?)`,
-                [id_tarea, busqueda.descripcion, req.files[index].filename]
-            )
-        })
+        if(req.files.length){
+            arrayBus = JSON.parse(busquedas);
+            arrayBus.forEach( async (busqueda,index) => {
+                const queryResult = await tareasPromisePool.query(
+                    `INSERT INTO tareas_busqueda (id_tarea, descripcion, img) VALUES (?,?,?)`,
+                    [id_tarea, busqueda.descripcion, req.files[index].filename]
+                )
+            })
+
+        }else{
+            arrayBus = JSON.parse(busquedas);
+            arrayBus.forEach( async (busqueda,index) => {
+                const queryResult = await tareasPromisePool.query(
+                    `INSERT INTO tareas_busqueda (id_tarea, descripcion ) VALUES (?,?)`,
+                    [id_tarea, busqueda.descripcion]
+                )
+            })
+        }
 
         const updateResult = await tareasPromisePool.query(
             `UPDATE tareas SET estado = 'COMPLETADA', fecha_completada = NOW() WHERE id_tarea = ?`,
@@ -274,7 +313,7 @@ const responderOtra = async (req, res) => {
         const {otra,id_tarea} = req.body;
 
         console.log(req.files)
-
+    if(req.files.length){
         arrayOtr = JSON.parse(otra);
         arrayOtr.forEach( async (otra,index) => {
             const queryResult = await tareasPromisePool.query(
@@ -282,6 +321,16 @@ const responderOtra = async (req, res) => {
                 [id_tarea, otra.descripcion, req.files[index].filename]
             )
         })
+    }else{
+        arrayOtr = JSON.parse(otra);
+            arrayOtr.forEach( async (otra,index) => {
+                const queryResult = await tareasPromisePool.query(
+                    `INSERT INTO tareas_otra (id_tarea, descripcion) VALUES (?,?)`,
+                    [id_tarea, otra.descripcion]
+                )
+            })
+    }
+        
 
         const updateResult = await tareasPromisePool.query(
             `UPDATE tareas SET estado = 'COMPLETADA', fecha_completada = NOW() WHERE id_tarea = ?`,

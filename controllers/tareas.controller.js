@@ -13,7 +13,7 @@ const eventEmitter = new events.EventEmitter();
 
 //se importa el conector con la base de datos
 const { tareasPromisePool } = require('../database/configTareas');
-
+const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
@@ -268,9 +268,18 @@ const getTareaById = async(req, res) => {
         }
         //aca tenemos el folio sic
         folio_sic = queryResult[0][0].folio_sic;
-
-        // Emitir un evento personalizado
-        eventEmitter.emit('buscarInformacion', { folio_sic });
+        let externalApiResponse;
+        try {
+            console.log(process.env.ENLACE_AURA+'/api/asignador/info-aura?folio='+folio_sic)
+            externalApiResponse = await axios.get(process.env.ENLACE_AURA+'/api/asignador/info-aura?folio='+folio_sic);
+            console.log(externalApiResponse.data.data)
+            externalApiResponse = externalApiResponse.data.data[0];
+        } catch (error) {
+            externalApiResponse = {msg: 'El servicio esta caido'};
+        }
+        
+        // Usar la respuesta de la solicitud externa como parte de tu lógica
+        console.log('RESPONDIO:',externalApiResponse);
 
         res.json({
             ok: true,
@@ -278,7 +287,8 @@ const getTareaById = async(req, res) => {
             data: {
                 tareas: queryResult[0],
                 respuestas: respuestas[0],
-                detenciones: detenciones[0]
+                detenciones: detenciones[0],
+                aura: externalApiResponse
             },
         });
     } catch (error) {
