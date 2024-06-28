@@ -12,7 +12,7 @@ const generarJWT = (id,name) => {
 
         const payload = {id,name};
         jwt.sign(payload,process.env.SECRET_KEY,{
-            expiresIn: '1h'
+            expiresIn: '24h'
         },(err,token) => {
 
             if(err){

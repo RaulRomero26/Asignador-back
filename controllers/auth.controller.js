@@ -30,11 +30,11 @@ const login = async (req, res = response) => {
         });
       }
 
-      if (usuario[0].sesion_iniciada) {
-        return res.status(400).json({
-          msg: 'Ya has iniciado sesion en otro dispositivo o navegador'
-        });
-      }
+      // if (usuario[0].sesion_iniciada) {
+      //   return res.status(400).json({
+      //     msg: 'Ya has iniciado sesion en otro dispositivo o navegador'
+      //   });
+      //}
   
       // Verificar si el usuario está activo
       // if (!usuario.estado) {
@@ -55,8 +55,8 @@ const login = async (req, res = response) => {
       const token = await generarJWT(usuario[0].id);
 
       // Actualizamos el token valido.
-      const updateToken = await tareasPromisePool.query('UPDATE usuarios SET current_active_token = ?, sesion_iniciada = 1 WHERE id = ?', [token,usuario[0].id]);
-      console.log(updateToken,token)
+      // const updateToken = await tareasPromisePool.query('UPDATE usuarios SET current_active_token = ?, sesion_iniciada = 1 WHERE id = ?', [token,usuario[0].id]);
+      // console.log(updateToken,token)
       //console.log('a ver al usuario ', usuario);
       res.json({
         msg: 'Login ok',
@@ -124,8 +124,8 @@ const logout = async (req, res = response) => {
       //relmacenaje en en el req para prevalecer en sesion
       console.log('ID DEL VRIFY,: ',id)
       //leer el usuario del uid
-      const updateToken = await tareasPromisePool.query('UPDATE usuarios SET current_active_token = "", sesion_iniciada = 0 WHERE id = ?', [id]);
-      console.log(updateToken)
+      // const updateToken = await tareasPromisePool.query('UPDATE usuarios SET current_active_token = "", sesion_iniciada = 0 WHERE id = ?', [id]);
+      // console.log(updateToken)
 
       return res.status(201).json({
         msg: 'Sesion Eliminada'
@@ -135,19 +135,19 @@ const logout = async (req, res = response) => {
 
     if (error.message === 'jwt malformed') {
       console.log('entre al error de malformed')
-      await tareasPromisePool.query(
-          `UPDATE usuarios SET sesion_iniciada = 0 WHERE id = ?`,
-          [id_ls]
-      )
+      // await tareasPromisePool.query(
+      //     `UPDATE usuarios SET sesion_iniciada = 0 WHERE id = ?`,
+      //     [id_ls]
+      // )
       return res.status(400).json({
           msg: 'Token malformado'
       });
   }
     if(req.header('x-user')){
-      await tareasPromisePool.query(
-       `UPDATE usuarios SET sesion_iniciada = 0 WHERE id = ?`,
-       [id_ls]
-      )
+      // await tareasPromisePool.query(
+      //  `UPDATE usuarios SET sesion_iniciada = 0 WHERE id = ?`,
+      //  [id_ls]
+      // )
     }
 
     res.status(500).json({
