@@ -11,6 +11,7 @@ const { tareasPromisePool } = require('../database/configTareas');
 const fs = require('fs');
 const path = require('path');
 const multer = require('multer');
+const { default: axios } = require('axios');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
@@ -139,6 +140,8 @@ const responderEntrevista = async (req, res) => {
                     `UPDATE tareas SET estado = 'COMPLETADA', fecha_completada = NOW() WHERE id_tarea = ?`,
                     [data.id_tarea]
                 )
+
+            axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-entrevista', {entrevistas:inserts, id_tarea:data.id_tarea})
                     
             res.json({
                 ok: true,
@@ -176,6 +179,7 @@ const responderBarrido = async (req, res) => {
             [id_tarea]
         )
 
+        axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-barrido', {barridos:arrayUbi, id_tarea:id_tarea})
 
         res.json({
             ok: true,
@@ -238,6 +242,8 @@ const responderVigilancia = async (req, res) => {
             [id_tarea]
         );
 
+        axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-vigilancia', {vigilancias:arrayVigilancias, files:req.files, id_tarea:id_tarea})
+
         // Responder al cliente
         res.json({
             ok: true,
@@ -290,6 +296,8 @@ const responderBusqueda = async (req, res) => {
             [id_tarea]
         )
 
+        axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-busqueda', {busquedas:arrayBus,files:req.files, id_tarea:id_tarea})
+
         res.json({
             ok: true,
             msg: 'Busqueda respondida',
@@ -336,6 +344,8 @@ const responderOtra = async (req, res) => {
             `UPDATE tareas SET estado = 'COMPLETADA', fecha_completada = NOW() WHERE id_tarea = ?`,
             [id_tarea]
         )
+
+        axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-otra', {otras:arrayOtr,files:req.files, id_tarea:id_tarea})
 
         res.json({
             ok: true,

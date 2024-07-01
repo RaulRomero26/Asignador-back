@@ -107,6 +107,11 @@ const crearTarea = async (req, res) => {
                 fs.writeFileSync(filePath, req.file.buffer);
             }
 
+            //Enviar la tarea
+            let tareaEnviar = await tareasPromisePool.query(`SELECT * FROM tareas WHERE id_tarea = ?`,[lastInsertedId]);
+            tareaEnviar = tareaEnviar[0][0];
+            console.log(tareaEnviar)
+            axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-tarea', {tarea: tareaEnviar})
 
 
             res.json({
