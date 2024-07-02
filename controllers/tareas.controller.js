@@ -134,9 +134,11 @@ const crearTarea = async (req, res) => {
 
 const getAllTareas = async (req, res) => {
     try {
-        const { page = 1, per_page, asignadas,orden,mostrar } = req.query;
+        const { page = 1, per_page, asignadas,orden,mostrar,usuario,tipo, fechaInicio,fechaFin } = req.query;
         const offset = (page - 1) * per_page;
         let queryResult,totalRegisters;
+
+        console.log('SOLICITO: ',page , per_page, asignadas,orden,mostrar,usuario,tipo,fechaInicio,fechaFin )
 
         let ordenString = '';
        
@@ -167,6 +169,29 @@ const getAllTareas = async (req, res) => {
                 break;
         }
        
+        let tipoString = '';
+
+        if(tipo != ''){
+            tipoString = `AND tipo_tarea = '${tipo}'`
+        }
+
+        
+        let usuarioString = '';
+        if(usuario != ''){
+            usuarioString = `AND asignado_a = '${usuario}'`
+        }
+
+        let dateString = ''; 
+        if(fechaInicio !='' && fechaFin == ''){
+            dateString = `AND DATE(fecha_asignacion) BETWEEN '${fechaInicio}' AND NOW()`
+        }
+        if(fechaInicio !='' && fechaFin != ''){
+            dateString = `AND DATE(fecha_asignacion) BETWEEN '${fechaInicio}' AND '${fechaFin}'`
+        }
+        if(fechaInicio =='' && fechaFin != ''){
+            dateString = `AND DATE(fecha_asignacion) <= '${fechaFin}'`
+        }
+
         if(asignadas != 'ALL'){
             queryResult = await tareasPromisePool.query(
                 `SELECT * FROM tareas WHERE asignado_a = ? AND ${mostrarString} ${ordenString}  LIMIT ?, ?;`,
@@ -178,9 +203,9 @@ const getAllTareas = async (req, res) => {
                 [asignadas]
             )
         }else{
-            console.log(ordenString)
+            
             queryResult = await tareasPromisePool.query(
-                `SELECT * FROM tareas WHERE ${mostrarString} ${ordenString} LIMIT ?, ?;`,
+                `SELECT * FROM tareas WHERE ${mostrarString} ${usuarioString} ${tipoString} ${dateString} ${ordenString} LIMIT ?, ?;`,
                 [offset, parseInt(per_page)]
             );
             
