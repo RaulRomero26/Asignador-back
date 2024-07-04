@@ -76,22 +76,32 @@ const login = async (req, res = response) => {
     pues se requiere el usuario y contraseña del usuario
 */
 const revalidarToken = async (req,res = response)=> {
+    console.log('ENTRE A REVALIDAR TOKEN')
+    console.log('REQ: ',req.body)
     //como desde el miidelware modificas el req aca ya tienes la info 
     //console.log('entro al revalidar', req)
     //const {uid,name} = req.body
     // req.usuario.id= req.usuario.id; req.usuario.name=req.usuario.nombre
-    const {id,username,nombre_completo,rol,img} = req.body;
+    const {id,username,name,rol,img} = req.body;
     //console.log('ESTAMOS EN REVALIDAR: ',req.body)
    //regenerando un token
     //console.log('revalidadtoken : ',{id,nombre_completo,rol,img,correo,id_customer_stripe,id_subscription_active_stripe,id_subscription})
-    const token = await generarJWT(id,nombre_completo);
+    const token = await generarJWT(id,name);
 
-    const updateToken = await tareasPromisePool.query('UPDATE usuarios SET current_active_token = ? WHERE id = ?', [token,id]);
-
+    //const updateToken = await tareasPromisePool.query('UPDATE usuarios SET current_active_token = ? WHERE id = ?', [token,id]);
+    console.log('va de regreso el token: ',{
+      ok:true,
+      id,
+      name,
+      rol,
+      img,
+      username,
+      token,
+    })
     res.json({
         ok:true,
         id,
-        name:nombre_completo,
+        name,
         rol,
         img,
         username,
@@ -113,6 +123,7 @@ const logout = async (req, res = response) => {
     }
 
   if(!token){
+    console.log('NO HAY TOKEN')
       return res.status(401).json({
           msg: 'No hay token la peticion'
       })
@@ -143,12 +154,6 @@ const logout = async (req, res = response) => {
           msg: 'Token malformado'
       });
   }
-    if(req.header('x-user')){
-      // await tareasPromisePool.query(
-      //  `UPDATE usuarios SET sesion_iniciada = 0 WHERE id = ?`,
-      //  [id_ls]
-      // )
-    }
 
     res.status(500).json({
       msg: 'Hable con el administrador'

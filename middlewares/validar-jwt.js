@@ -12,20 +12,22 @@ const { tareasPromisePool } = require('../database/configTareas');
     se encapsula el token en los headers de las peticiones, 
 */
 const validarJWT = async (req = request ,res = response, next) => {
+
+    console.log('ENTRE A VALIDAR JWT')
+
     const token = req.header('x-token') // como se especifique aqui es como el front debe de mandarlo
     let id_ls;
-    if(req.header('x-user')){
-        id_ls = JSON.parse(req.header('x-user')).id
-    }
+   
     if(!token){
         return res.status(401).json({
             msg: 'No hay token la peticion'
         })
     }
-    
+    console.log('TOKEN DE EL VALIDAR:',token)
     try {
         //esto regresa el payload en claro
         const {id} = jwt.verify( token , process.env.SECRET_KEY);//es necesario saber que le metes al payload
+        console.log('ID DEL VRIFY, desde VALIDAR JWT: ',id)
         //relmacenaje en en el req para prevalecer en sesion
         //leer el usuario del uid
         const usuario = await tareasPromisePool.query(
