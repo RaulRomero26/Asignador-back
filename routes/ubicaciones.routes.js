@@ -11,7 +11,7 @@
 //se importa el router de express
 const { Router } = require('express');
 //se importan las funciones controladoras para los diferentes enpoint 
-const { enviarUbicacion } = require('../controllers/ubicaciones.controller');
+const { enviarUbicacion, obtenerUbicaciones } = require('../controllers/ubicaciones.controller');
 //se importa el middleware para validar las rutas
 // const { validarJWT } = require('../middlewares/validar-jwt');
 // //se crea el roter para manejar las peticiones
@@ -23,6 +23,7 @@ const router = Router();
     que especificarlo endpoint a endpoint
 */ 
 //router.use(validarJWT);
+router.get('/obtener-ubicaciones', obtenerUbicaciones)
 router.post('/enviar-ubicacion', enviarUbicacion )
 
 

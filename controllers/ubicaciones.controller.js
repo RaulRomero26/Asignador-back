@@ -78,6 +78,64 @@ const enviarUbicacion = async (req, res) => {
     }
 };
 
+const obtenerUbicaciones = async (req, res) => {
+    try {
+        console.log('ENTRO A OBTENER UBICACIONES')
+        console.log(req.query);
+        const {fechaInicio, fechaFin, usuario} = req.query;
+        if(fechaInicio == '' && fechaFin == '' && usuario == ''){
+            res.status(200).json({
+                ok: true,
+                ubicaciones: [],
+            });
+        }else {
+
+            let usuarioString = '';
+            if(usuario != ''){
+                usuarioString = `WHERE username = '${usuario}'`
+            }
+    
+            let dateString = ''; 
+            
+            let inicioCad = '';
+            if(usuario == ''){
+                inicioCad = 'WHERE '
+            }else{
+                inicioCad = 'AND '
+            }
+    
+    
+            if(fechaInicio !='' && fechaFin == ''){
+                dateString = `${inicioCad} DATE(fecha_hora) BETWEEN '${fechaInicio}' AND NOW()`
+            }
+            if(fechaInicio !='' && fechaFin != ''){
+                dateString = `${inicioCad} DATE(fecha_hora) BETWEEN '${fechaInicio}' AND '${fechaFin}'`
+            }
+            if(fechaInicio =='' && fechaFin != ''){
+                dateString = `${inicioCad} DATE(fecha_hora) <= '${fechaFin}'`
+            }
+    
+            const query = `SELECT * FROM ubicaciones_usuarios ${usuarioString} ${dateString}`;
+            console.log(query);
+    
+            const ubicaciones = await tareasPromisePool.query(query);
+            res.status(200).json({
+                ok: true,
+                ubicaciones: ubicaciones[0]
+            });
+        }
+
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Internal Server Error',
+        });
+    }
+
+};
+
 // Función para crear un cuadrado alrededor de un punto central
 function createSquare(centerX, centerY, sideLength) {
     const halfSide = sideLength / 2;
@@ -95,5 +153,6 @@ function createHexagon(centerX, centerY, sideLength) {
 
 module.exports = {
     enviarUbicacion,
+    obtenerUbicaciones,
     eventEmitterUbicacion
 }
