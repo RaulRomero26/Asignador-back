@@ -13,7 +13,7 @@ const catalogoUsuarios = async (req, res) => {
     try {
             const queryResult = await tareasPromisePool.query(
                 `SELECT DISTINCT username from usuarios 
-                WHERE rol != 'ADMIN_ROLE'
+                WHERE rol = 'USER_ROLE'
                 ORDER BY username ASC`
             )
  

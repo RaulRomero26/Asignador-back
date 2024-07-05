@@ -27,100 +27,104 @@ const crearTarea = async (req, res) => {
     try {
             const {tarea}  = req.body;
             // Primero, realizamos la inserción
-            console.log(tarea)
+            //console.log(tarea)
             let propiedadesTarea = JSON.parse(tarea)
-            console.log(propiedadesTarea)
+            console.log(propiedadesTarea.tipo_tarea)
             let columns = Object.keys(propiedadesTarea).join(', '); // Obtener nombres de las propiedades
-            let placeholders = Object.keys(propiedadesTarea).map(() => '?').join(', '); // Generar marcadores de posición para los valores
-            let values = Object.values(propiedadesTarea); // Obtener los valores de las propiedades
-            
-            const insertResult = await tareasPromisePool.query(
-                `INSERT INTO tareas(${columns}) VALUES (${placeholders})`,
-                values
-            );
+            let arrayCreacion = propiedadesTarea.tipo_tarea.split(', ');
+            console.log(arrayCreacion)
 
-            const obtenerIdUsuario = await tareasPromisePool.query(`
-                SELECT id FROM usuarios WHERE username = ?`,
-                [propiedadesTarea.asignado_a]
-            );
+            arrayCreacion.forEach(async (element) => {
+                propiedadesTarea.tipo_tarea = element;
+                let placeholders = Object.keys(propiedadesTarea).map(() => '?').join(', '); // Generar marcadores de posición para los valores
+                let values = Object.values(propiedadesTarea); // Obtener los valores de las propiedades
 
-            console.log(obtenerIdUsuario[0][0].id)
-
-            // Luego, obtenemos el último ID insertado
-            const lastInsertedId = insertResult[0].insertId;
-
-            if (req.file) {
-                const tipoMIME = req.file.mimetype;
-                let extension = '';
-                switch (tipoMIME) {
-                    case 'image/jpeg':
-                        extension = '.jpeg';
-                        break;
-                    case 'image/jpg':
-                        extension = '.jpg';
-                        break;
-                    case 'image/png':
-                        extension = '.png';
-                        break;
-                    default:
-                        break;
-                }
-
-                // Finalmente, realizamos la actualización
-                const updateResult = await tareasPromisePool.query(
-                    `UPDATE tareas SET img = CONCAT(?, ?) WHERE id_tarea = ?`,
-                    [lastInsertedId, extension, lastInsertedId]
+                const insertResult = await tareasPromisePool.query(
+                     `INSERT INTO tareas(${columns}) VALUES (${placeholders})`,
+                     values
                 );
-                let carpeta ='';
-                switch (propiedadesTarea.tipo_tarea) {
-                    case 'BUSQUEDA':
-                        carpeta = 'busqueda';
-                        break;
-                    case 'VIGILANCIA':
-                        carpeta = 'vigilancia';
-                        break
-                    case 'ENTREVISTA':
-                        carpeta = 'entrevista';
-                        break;
-                    case 'BARRIDO':
-                        carpeta = 'barrido';
-                        break;
-                    case 'OTRA':
-                        carpeta = 'otra';
-                        break;
-                    default:
-                        carpeta = 'otra';
-                        break;
+                if(propiedadesTarea.asignado_a){
+                    const obtenerIdUsuario = await tareasPromisePool.query(`
+                        SELECT id FROM usuarios WHERE username = ?`,
+                        [propiedadesTarea.asignado_a]
+                    );
+                    console.log(obtenerIdUsuario[0][0].id)
                 }
-
-
-                const uploadPath = path.join(__dirname, '../public/asignador/tareas/tareas',`${carpeta}`,`${lastInsertedId}`);
-                console.log(uploadPath)
-                // Crear el directorio si no existe
-                if (!fs.existsSync(uploadPath)) {
-                    fs.mkdirSync(uploadPath, { recursive: true });
+    
+    
+                // Luego, obtenemos el último ID insertado
+                const lastInsertedId = insertResult[0].insertId;
+    
+                if (req.file) {
+                    const tipoMIME = req.file.mimetype;
+                    let extension = '';
+                    switch (tipoMIME) {
+                        case 'image/jpeg':
+                            extension = '.jpeg';
+                            break;
+                        case 'image/jpg':
+                            extension = '.jpg';
+                            break;
+                        case 'image/png':
+                            extension = '.png';
+                            break;
+                        default:
+                            break;
+                    }
+    
+                    // Finalmente, realizamos la actualización
+                    const updateResult = await tareasPromisePool.query(
+                        `UPDATE tareas SET img = CONCAT(?, ?) WHERE id_tarea = ?`,
+                        [lastInsertedId, extension, lastInsertedId]
+                    );
+                    let carpeta ='';
+                    switch (propiedadesTarea.tipo_tarea) {
+                        case 'BUSQUEDA':
+                            carpeta = 'busqueda';
+                            break;
+                        case 'VIGILANCIA':
+                            carpeta = 'vigilancia';
+                            break
+                        case 'ENTREVISTA':
+                            carpeta = 'entrevista';
+                            break;
+                        case 'BARRIDO':
+                            carpeta = 'barrido';
+                            break;
+                        case 'OTRA':
+                            carpeta = 'otra';
+                            break;
+                        default:
+                            carpeta = 'otra';
+                            break;
+                    }
+    
+    
+                    const uploadPath = path.join(__dirname, '../public/asignador/tareas/tareas',`${carpeta}`,`${lastInsertedId}`);
+                    console.log(uploadPath)
+                    // Crear el directorio si no existe
+                    if (!fs.existsSync(uploadPath)) {
+                        fs.mkdirSync(uploadPath, { recursive: true });
+                    }
+    
+                    const filePath = path.join(uploadPath, `${lastInsertedId}${extension}`);
+    
+                    // Escribe el archivo en la ubicación deseada
+                    fs.writeFileSync(filePath, req.file.buffer);
                 }
-
-                const filePath = path.join(uploadPath, `${lastInsertedId}${extension}`);
-
-                // Escribe el archivo en la ubicación deseada
-                fs.writeFileSync(filePath, req.file.buffer);
-            }
-
-            //Enviar la tarea
-            let tareaEnviar = await tareasPromisePool.query(`SELECT * FROM tareas WHERE id_tarea = ?`,[lastInsertedId]);
-            tareaEnviar = tareaEnviar[0][0];
-            console.log(tareaEnviar)
-            axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-tarea', {tarea: tareaEnviar})
-
+    
+                //Enviar la tarea
+                let tareaEnviar = await tareasPromisePool.query(`SELECT * FROM tareas WHERE id_tarea = ?`,[lastInsertedId]);
+                tareaEnviar = tareaEnviar[0][0];
+                console.log(tareaEnviar)
+                axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-tarea', {tarea: tareaEnviar})
+            });
 
             res.json({
                 ok: true,
                 msg: 'POST TAREA CREADA',
                 data: {
                     message: 'Tarea creada exitosamente',
-                    id: lastInsertedId,
-                    user_id: obtenerIdUsuario[0][0].id
                 },
             });
     } catch (error) {
@@ -177,9 +181,9 @@ const getAllTareas = async (req, res) => {
 
         
         let usuarioString = '';
-        if(usuario != ''){
+        //if(usuario != ''){
             usuarioString = `AND asignado_a = '${usuario}'`
-        }
+        //}
 
         let dateString = ''; 
         if(fechaInicio !='' && fechaFin == ''){
@@ -349,6 +353,40 @@ const getTareasVigilanciaHoy = async (req,res) => {
     }
 }
 
+const actualizarTarea = async (req, res) => {
+    try {
+        console.log(req.body);
+        const { tarea } = req.body;
+
+        let propiedadesTarea = JSON.parse(tarea);
+        const { id, ...resto } = propiedadesTarea;
+        console.log(propiedadesTarea);
+        
+        // Construir la parte SET de la consulta SQL
+        let setClause = Object.keys(resto).map(key => `${key} = ?`).join(', ');
+        let values = Object.values(resto); // Obtener los valores de las propiedades
+        
+        // Añadir el id al final de los valores
+        values.push(id);
+
+        const updateResult = await tareasPromisePool.query(`UPDATE tareas SET ${setClause} WHERE id_tarea = ?`, values);
+        //console.log(updateResult);
+
+        return res.json({
+            ok: true,
+            msg: 'Tarea actualizada',
+        });
+
+    } catch (error) {
+        console.log('ERROR:',error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Internal Server Error',
+        });
+    }
+}
+
+
 //se exporta la funcion para usarla en el exterior
 module.exports = {
     crearTarea,
@@ -356,5 +394,6 @@ module.exports = {
     getTareaById,
     handleFile,
     eventEmitter,
-    getTareasVigilanciaHoy
+    getTareasVigilanciaHoy,
+    actualizarTarea
 }
