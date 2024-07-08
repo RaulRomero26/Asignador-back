@@ -23,6 +23,11 @@ const upload = multer({ storage: storage });
 // Middleware de Multer para manejar archivos
 const handleFile = upload.single('image');
 
+const convertToMySQLDateTime = (isoDate) => {
+    if (!isoDate) return null;
+    return new Date(isoDate).toISOString().slice(0, 19).replace('T', ' ');
+};
+
 const crearTarea = async (req, res) => {
     try {
             const {tarea}  = req.body;
@@ -32,6 +37,13 @@ const crearTarea = async (req, res) => {
             console.log(propiedadesTarea.tipo_tarea)
             let columns = Object.keys(propiedadesTarea).join(', '); // Obtener nombres de las propiedades
             let arrayCreacion = propiedadesTarea.tipo_tarea.split(', ');
+
+
+            if (propiedadesTarea.hora_inicio) propiedadesTarea.hora_inicio = convertToMySQLDateTime(propiedadesTarea.hora_inicio);
+            if (propiedadesTarea.hora_fin) propiedadesTarea.hora_fin = convertToMySQLDateTime(propiedadesTarea.hora_fin);
+            if (propiedadesTarea.fecha_operativo) propiedadesTarea.fecha_operativo = convertToMySQLDateTime(propiedadesTarea.fecha_operativo);
+
+
             console.log(arrayCreacion)
 
             arrayCreacion.forEach(async (element) => {
