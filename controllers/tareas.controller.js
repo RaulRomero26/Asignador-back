@@ -193,9 +193,9 @@ const getAllTareas = async (req, res) => {
 
         
         let usuarioString = '';
-        //if(usuario != ''){
+        if(usuario != ''){
             usuarioString = `AND asignado_a LIKE '%${usuario}%'`
-        //}
+        }
 
         let dateString = ''; 
         if(fechaInicio !='' && fechaFin == ''){
