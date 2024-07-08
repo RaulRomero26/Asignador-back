@@ -374,6 +374,11 @@ const actualizarTarea = async (req, res) => {
         const { tarea } = req.body;
 
         let propiedadesTarea = JSON.parse(tarea);
+        if (propiedadesTarea.usuario == undefined || propiedadesTarea.usuario == null || propiedadesTarea.usuario == 'null' || propiedadesTarea.usuario == 'undefinded') { 
+            propiedadesTarea.usuario = propiedadesTarea.asignado_a;
+        }
+        console.log(propiedadesTarea)
+        
         const { id, ...resto } = propiedadesTarea;
         console.log(propiedadesTarea);
         
