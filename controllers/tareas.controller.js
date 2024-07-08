@@ -222,7 +222,7 @@ const getAllTareas = async (req, res) => {
             )
         }else{
             console.log('else')
-            Console.log(`SELECT * FROM tareas WHERE ${mostrarString} ${usuarioString} ${tipoString} ${dateString} ${ordenString} LIMIT ?, ?;`)
+            console.log(`SELECT * FROM tareas WHERE ${mostrarString} ${usuarioString} ${tipoString} ${dateString} ${ordenString} LIMIT ?, ?;`)
             queryResult = await tareasPromisePool.query(
                 `SELECT * FROM tareas WHERE ${mostrarString} ${usuarioString} ${tipoString} ${dateString} ${ordenString} LIMIT ?, ?;`,
                 [offset, parseInt(per_page)]
