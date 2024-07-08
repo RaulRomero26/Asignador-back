@@ -209,6 +209,8 @@ const getAllTareas = async (req, res) => {
         }
 
         if(asignadas != 'ALL'){
+            console.log('asignadas diferente de all')
+            console.log(`SELECT * FROM tareas WHERE asignado_a = ? AND ${mostrarString} ${ordenString}  LIMIT ?, ?;`)
             queryResult = await tareasPromisePool.query(
                 `SELECT * FROM tareas WHERE asignado_a = ? AND ${mostrarString} ${ordenString}  LIMIT ?, ?;`,
                 [asignadas,offset, parseInt(per_page)]
@@ -219,7 +221,8 @@ const getAllTareas = async (req, res) => {
                 [asignadas]
             )
         }else{
-            
+            console.log('else')
+            Console.log(`SELECT * FROM tareas WHERE ${mostrarString} ${usuarioString} ${tipoString} ${dateString} ${ordenString} LIMIT ?, ?;`)
             queryResult = await tareasPromisePool.query(
                 `SELECT * FROM tareas WHERE ${mostrarString} ${usuarioString} ${tipoString} ${dateString} ${ordenString} LIMIT ?, ?;`,
                 [offset, parseInt(per_page)]
