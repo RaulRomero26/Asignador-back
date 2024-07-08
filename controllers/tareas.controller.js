@@ -383,7 +383,7 @@ const actualizarTarea = async (req, res) => {
         
         // Añadir el id al final de los valores
         values.push(id);
-
+        console.log(values)
         console.log(`UPDATE tareas SET ${setClause} WHERE id_tarea = ?`);
         const updateResult = await tareasPromisePool.query(`UPDATE tareas SET ${setClause} WHERE id_tarea = ?`, values);
         //console.log(updateResult);
