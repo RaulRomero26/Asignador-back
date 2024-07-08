@@ -58,6 +58,7 @@ const login = async (req, res = response) => {
       // const updateToken = await tareasPromisePool.query('UPDATE usuarios SET current_active_token = ?, sesion_iniciada = 1 WHERE id = ?', [token,usuario[0].id]);
       // console.log(updateToken,token)
       //console.log('a ver al usuario ', usuario);
+      const insertLogin = await tareasPromisePool.query('INSERT INTO historial_sesiones (usuario) VALUES (?)', [usuario[0].username]);
       res.json({
         msg: 'Login ok',
         usuario: usuario[0],
