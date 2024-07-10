@@ -13,7 +13,7 @@ const path = require('path');
 //se importa el router de express
 const { Router } = require('express');
 //se importan las funciones controladoras para los diferentes enpoint 
-const { saveSubscription,sendNotification  } = require('../controllers/notificaciones.controller');
+const { guardarToken  } = require('../controllers/notificaciones.controller');
 //se importa el middleware para validar las rutas
 // const { validarJWT } = require('../middlewares/validar-jwt');
 // //se crea el roter para manejar las peticiones
@@ -25,8 +25,8 @@ const router = Router();
     que especificarlo endpoint a endpoint
 */ 
 
-router.post('/save-subscription', saveSubscription )
-router.post('/send-notification', sendNotification )
+
+router.post('/tokenfcm', guardarToken);
 
 //se exporta el router para usarlo en el exterior
 module.exports = router;

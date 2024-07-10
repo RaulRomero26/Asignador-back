@@ -5,7 +5,7 @@ const socketio = require('socket.io');
 const path = require('path');
 const cors = require('cors');
 const Sockets = require('./socket');
-
+const admin = require("firebase-admin");
 
 class Server {
 
@@ -64,14 +64,21 @@ class Server {
         this.app.use( this.asignadorPath, require('../routes/respuestas.routes'));//respuestas
         this.app.use( this.imagesPath, require('../routes/images.routes'));
         this.app.use( this.catalogosPath, require('../routes/catalogos.routes'));
-        //this.app.use( this.asignadorPath, require('../routes/notificaciones.routes'));//notificaciones
+        this.app.use( this.notificacionesPath, require('../routes/notificaciones.routes'));//notificaciones
         this.app.use( this.ubicacionesPath, require('../routes/ubicaciones.routes'));//ubicaciones
 
         //this.app.use( this.cronPath, require('../routes/cron.routes'));//cron
     }
     
 
+    firebase(){
+      var serviceAccount = require("../appzen-db070-firebase-adminsdk-90ejd-5ead12d376.json");
 
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount)
+      });
+
+    }
 
     execute(){
         //Inicializar Middlewares
@@ -82,6 +89,8 @@ class Server {
 
         //Rutas de la aplicacion
         this.routes();
+
+        this.firebase();
 
         //Inicializaar server
         this.server.listen(this.port, () => {

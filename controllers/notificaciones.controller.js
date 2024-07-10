@@ -63,8 +63,58 @@ const sendNotification = async(req, res) => {
     });
 }
 
+const guardarToken = async(req, res) => {
+
+    const {token,username} = req.body;
+
+    const existeUsuario = await tareasPromisePool.query(`SELECT * FROM usuarios_token WHERE usuario = ?`, [username]);
+    console.log(existeUsuario[0].length)
+
+    if(existeUsuario[0].length > 0){
+        try {
+            await tareasPromisePool.query(`UPDATE usuarios_token SET token = ? WHERE usuario = ?`, [token, username]);
+            return res.status(201).json({
+                data: {
+                        success: true,
+                        msg: 'Token actualizado'
+                    }
+                });
+            
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({
+                data: {
+                        success: false,
+                        msg: 'Error al actualizar token'
+                    }
+                });
+        }
+    }else {
+        try {
+            await tareasPromisePool.query(`INSERT INTO usuarios_token (usuario, token) VALUES (?, ?)`, [username, token]);
+            return res.status(201).json({
+                data: {
+                        success: true,
+                        msg: 'Token guardado'
+                    }
+                });
+            
+        } catch (error) {
+            console.log(error)
+            return res.status(400).json({
+                data: {
+                        success: false,
+                        msg: 'Error al guardar token'
+                    }
+                });
+        }
+    
+    }
+}
+
 
 module.exports = {
     saveSubscription,
-    sendNotification
+    sendNotification,
+    guardarToken
 }

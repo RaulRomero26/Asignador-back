@@ -6,6 +6,8 @@
 //se importan la request y la response de express para tener el tipado
 const { response, request } = require('express');
 
+const admin = require('firebase-admin');
+
 const webPush = require('web-push');
 // En tu controlador
 const events = require('events');
@@ -125,13 +127,16 @@ const crearTarea = async (req, res) => {
                     fs.writeFileSync(filePath, req.file.buffer);
                 }
     
-                //Enviar la tarea
-                let tareaEnviar = await tareasPromisePool.query(`SELECT * FROM tareas WHERE id_tarea = ?`,[lastInsertedId]);
-                tareaEnviar = tareaEnviar[0][0];
-                console.log(tareaEnviar)
-                axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-tarea', {tarea: tareaEnviar})
+                // //Enviar la tarea
+                // let tareaEnviar = await tareasPromisePool.query(`SELECT * FROM tareas WHERE id_tarea = ?`,[lastInsertedId]);
+                // tareaEnviar = tareaEnviar[0][0];
+                // console.log(tareaEnviar)
+                // axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-tarea', {tarea: tareaEnviar})
             });
-
+            let userToken = await tareasPromisePool.query(`SELECT token FROM usuarios_token WHERE usuario = ?`,[propiedadesTarea.asignado_a]);
+            console.log(userToken[0][0].token)
+            sendFCMNotification([userToken[0][0].token],propiedadesTarea);
+           
             res.json({
                 ok: true,
                 msg: 'POST TAREA CREADA',
@@ -407,6 +412,32 @@ const actualizarTarea = async (req, res) => {
     }
 }
 
+
+async function sendFCMNotification(tokens,propiedadesTarea) {
+    const message = {
+        tokens: tokens, // ['fcmToken1', 'fcmToken2', ...]
+        notification: {
+            title: 'Nueva tarea asignada',
+            body: `Instrucciones: ${propiedadesTarea.instrucciones}, Tipo: ${propiedadesTarea.tipo_tarea}`,
+        },
+    };
+
+    try {
+        const response = await admin.messaging().sendMulticast(message);
+        console.log(`Total de mensajes: ${response.successCount} enviados exitosamente, ${response.failureCount} fallos.`);
+
+        // Manejo de las respuestas
+        response.responses.forEach((resp, idx) => {
+            if (resp.success) {
+                console.log(`Mensaje a ${tokens[idx]} enviado exitosamente.`);
+            } else {
+                console.error(`Error enviando mensaje a ${tokens[idx]}:`, resp.error);
+            }
+        });
+    } catch (error) {
+        console.error('Error enviando mensajes FCM:', error);
+    }
+}
 
 //se exporta la funcion para usarla en el exterior
 module.exports = {
