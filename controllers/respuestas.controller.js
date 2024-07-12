@@ -189,7 +189,7 @@ const responderBarrido = async (req, res) => {
         arrayUbi.forEach( async (ubicacion,index) => {
             let fileName = (req.files[index].filename) ? req.files[index].filename : '';
             console.log('FILE NAME: ', fileName)
-            arrayUbi.img = fileName;
+            arrayUbi[index].img = fileName;
             const queryResult = await tareasPromisePool.query(
                 `INSERT INTO tareas_barrido (id_tarea, coordenada_x, coordenada_y, camaras, descripcion, img) VALUES (?,?,?,?,?,?)`,
                 [id_tarea, ubicacion.lng, ubicacion.lat, ubicacion.huboCamaras, ubicacion.descripcion, fileName]
@@ -201,7 +201,7 @@ const responderBarrido = async (req, res) => {
             `UPDATE tareas SET estado = 'COMPLETADA', fecha_completada = NOW() WHERE id_tarea = ?`,
             [id_tarea]
         )
-
+        
         axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-barrido', {barridos:arrayUbi, id_tarea:id_tarea})
 
         res.json({
