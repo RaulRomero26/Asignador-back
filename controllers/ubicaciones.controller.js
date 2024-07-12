@@ -47,7 +47,7 @@ const enviarUbicacion = async (req, res) => {
             if (estaDentroDelRango) {
                 // Código para enviar la alerta
                 const punto = turf.point([x, y]);
-                const hexagon = createHexagon(tareasUsuario[0][0].x, tareasUsuario[0][0].y, .5);
+                const hexagon = createHexagon(tareasUsuario[0][0].x, tareasUsuario[0][0].y, .8);
                 //const hexagon = createHexagon(-98.2173709, 19.0758406, .5);
                 estaDentro = turf.booleanPointInPolygon(punto, hexagon);
                 rangoHorario = true;
