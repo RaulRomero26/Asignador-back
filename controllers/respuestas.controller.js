@@ -191,7 +191,7 @@ const responderBarrido = async (req, res) => {
             console.log('FILE NAME: ', fileName)
             arrayUbi.img = fileName;
             const queryResult = await tareasPromisePool.query(
-                `INSERT INTO tareas_barrido (id_tarea, coordenada_x, coordenada_y, camaras, descripcion, img) VALUES (?,?,?,?,?)`,
+                `INSERT INTO tareas_barrido (id_tarea, coordenada_x, coordenada_y, camaras, descripcion, img) VALUES (?,?,?,?,?,?)`,
                 [id_tarea, ubicacion.lng, ubicacion.lat, ubicacion.huboCamaras, ubicacion.descripcion, fileName]
             )
         })
