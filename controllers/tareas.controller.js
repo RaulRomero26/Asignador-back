@@ -365,7 +365,7 @@ const getTareaById = async(req, res) => {
 const getTareasVigilanciaHoy = async (req,res) => {
     try {
         const tareas = await tareasPromisePool.query(
-            `SELECT * FROM tareas WHERE tipo_tarea = 'VIGILANCIA' AND DATE(hora_inicio) = CURDATE()`
+            `SELECT * FROM tareas WHERE tipo_tarea = 'VIGILANCIA' AND DATE(hora_inicio) = CURDATE() AND estado = 'EN PROCESO' ORDER BY hora_inicio ASC`
         );
         return res.json({
             ok: true,
