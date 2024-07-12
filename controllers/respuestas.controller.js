@@ -21,6 +21,26 @@ const handleFile = upload.single('image');
 const CURRENT_DIR = __dirname
 const MIMETYPES = ['image/jpeg','image/jpg','image/png', 'image/svg+xml', 'image/webp','application/octet-stream'] 
 
+const multerUploadBarrido = multer({
+    storage: multer.diskStorage({
+        destination: path.join(CURRENT_DIR,'../public/asignador/tareas/barrido'),
+        filename: (req, file, cb) => {
+            const fileExtension = path.extname(file.originalname)
+            const filename = file.originalname.split(fileExtension)[0];
+            console.log('filename',filename)
+            cb(null,`${filename}-${Date.now()}${fileExtension}`)
+        }
+    }),
+    fileFilter: (req,file, cb) => {
+        if(MIMETYPES.includes(file.mimetype)) cb(null,true)
+        else cb(new Error (`Only ${MIMETYPES.join(' ')} mimetypes are awllowed`))
+    } ,
+    limits: {
+        fieldSize: 10000000
+    },
+})
+
+
 const multerUpload = multer({
     storage: multer.diskStorage({
         destination: path.join(CURRENT_DIR,'../public/asignador/tareas/vigilancia'),
@@ -167,9 +187,11 @@ const responderBarrido = async (req, res) => {
 
         arrayUbi = JSON.parse(ubicaciones);
         arrayUbi.forEach( async (ubicacion,index) => {
+            let fileName = (req.files[index].filename) ? req.files[index].filename : '';
+            arrayUbi.img = fileName;
             const queryResult = await tareasPromisePool.query(
-                `INSERT INTO tareas_barrido (id_tarea, coordenada_x, coordenada_y, camaras, descripcion) VALUES (?,?,?,?,?)`,
-                [id_tarea, ubicacion.lng, ubicacion.lat, ubicacion.huboCamaras, ubicacion.descripcion]
+                `INSERT INTO tareas_barrido (id_tarea, coordenada_x, coordenada_y, camaras, descripcion, img) VALUES (?,?,?,?,?)`,
+                [id_tarea, ubicacion.lng, ubicacion.lat, ubicacion.huboCamaras, ubicacion.descripcion, fileName]
             )
         })
 
@@ -411,5 +433,6 @@ module.exports = {
     multerUploadDetencion,
     multerUpload,
     multerUploadBusqueda,
+    multerUploadBarrido,
     multerUploadOtra
 }
