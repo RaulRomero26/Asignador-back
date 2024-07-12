@@ -41,8 +41,16 @@ const crearTarea = async (req, res) => {
             let arrayCreacion = propiedadesTarea.tipo_tarea.split(', ');
 
 
-            if (propiedadesTarea.hora_inicio) propiedadesTarea.hora_inicio = convertToMySQLDateTime(propiedadesTarea.hora_inicio);
-            if (propiedadesTarea.hora_fin) propiedadesTarea.hora_fin = convertToMySQLDateTime(propiedadesTarea.hora_fin);
+            if (propiedadesTarea.hora_inicio) {
+                const horaInicio = new Date(propiedadesTarea.hora_inicio);
+                horaInicio.setHours(horaInicio.getHours() - 6);
+                propiedadesTarea.hora_inicio = horaInicio.toISOString().slice(0, 19).replace('T', ' ');
+            }
+            if (propiedadesTarea.hora_fin) {
+                const horaFin = new Date(propiedadesTarea.hora_fin);
+                horaFin.setHours(horaFin.getHours() - 6);
+                propiedadesTarea.hora_fin = horaFin.toISOString().slice(0, 19).replace('T', ' ');
+            }
             if (propiedadesTarea.fecha_operativo) propiedadesTarea.fecha_operativo = convertToMySQLDateTime(propiedadesTarea.fecha_operativo);
 
 
