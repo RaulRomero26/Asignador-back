@@ -251,10 +251,19 @@ const responderVigilancia = async (req, res) => {
             const filename = req.files[i].filename;
 
             // Insertar cada vigilancia en la base de datos
-            const queryResult = await tareasPromisePool.query(
-                `INSERT INTO tareas_vigilancia (id_tarea, descripcion, img) VALUES (?,?,?)`,
-                [id_tarea, vigilancia.descripcion, filename]
-            );
+
+            if(vigilancia.tipo == 'persona'){
+
+                const queryResult = await tareasPromisePool.query(
+                    `INSERT INTO tareas_vigilancia (id_tarea, tipo,descripcion, img) VALUES (?,?,?,?)`,
+                    [id_tarea, vigilancia.tipo,vigilancia.descripcion, filename]
+                );
+            }else {
+                const queryResult = await tareasPromisePool.query(
+                    `INSERT INTO tareas_vigilancia (id_tarea, tipo,descripcion, img,placa,marca,modelo) VALUES (?,?,?,?,?,?,?)`,
+                    [id_tarea, vigilancia.tipo,vigilancia.descripcion, filename,vigilancia.placa,vigilancia.marca,vigilancia.modelo]
+                );
+            }
 
             console.log(`Vigilancia ${i + 1} insertada correctamente`);
         }
