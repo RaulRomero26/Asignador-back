@@ -136,10 +136,10 @@ const crearTarea = async (req, res) => {
                 }
     
                 // //Enviar la tarea
-                // let tareaEnviar = await tareasPromisePool.query(`SELECT * FROM tareas WHERE id_tarea = ?`,[lastInsertedId]);
-                // tareaEnviar = tareaEnviar[0][0];
+                let tareaEnviar = await tareasPromisePool.query(`SELECT * FROM tareas WHERE id_tarea = ?`,[lastInsertedId]);
+                tareaEnviar = tareaEnviar[0][0];
                 // console.log(tareaEnviar)
-                // axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-tarea', {tarea: tareaEnviar})
+                //axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-tarea', {tarea: tareaEnviar})
             });
             let userToken = await tareasPromisePool.query(`SELECT token FROM usuarios_token WHERE usuario = ?`,[propiedadesTarea.asignado_a]);
             console.log(userToken[0][0].token)
@@ -447,6 +447,48 @@ async function sendFCMNotification(tokens,propiedadesTarea) {
     }
 }
 
+const crearTareaGuardia = async (req, res) => {
+    console.log('CREANDO TAREA GUARDIA');
+    try {
+            const {folio_aura}  = req.body;
+            console.log(req.body)
+            arrayCreacion = ['ENTREVISTA','BARRIDO'];
+            arrayCreacion.forEach(async (element) => {
+              
+                const insertResult = await tareasPromisePool.query(
+                     `INSERT INTO tareas(tipo_tarea,instrucciones,folio_sic,asignado_a,prioridad_tarea,usuario) VALUES (?,?,?,?,?,?)`,
+                     [element,'TAREA CREADA POR ACTIVACION DE FOLIO',folio_aura,'GUARDIA','NORMAL','SISTEMA']
+                );
+                    
+                // Luego, obtenemos el último ID insertado
+                const lastInsertedId = insertResult[0].insertId;
+
+                //Enviar la tarea
+                 let tareaEnviar = await tareasPromisePool.query(`SELECT * FROM tareas WHERE id_tarea = ?`,[lastInsertedId]);
+                 tareaEnviar = tareaEnviar[0][0];
+                // console.log(tareaEnviar)
+                //axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-tarea', {tarea: tareaEnviar})
+            });
+            // let userToken = await tareasPromisePool.query(`SELECT token FROM usuarios_token WHERE usuario = ?`,[propiedadesTarea.asignado_a]);
+            // console.log(userToken[0][0].token)
+            // sendFCMNotification([userToken[0][0].token],propiedadesTarea);
+           
+            res.json({
+                ok: true,
+                msg: 'POST TAREA CREADA',
+                data: {
+                    message: 'Tarea creada exitosamente',
+                },
+            });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Internal Server Error',
+        });
+    }
+};
+
 //se exporta la funcion para usarla en el exterior
 module.exports = {
     crearTarea,
@@ -455,5 +497,6 @@ module.exports = {
     handleFile,
     eventEmitter,
     getTareasVigilanciaHoy,
-    actualizarTarea
+    actualizarTarea,
+    crearTareaGuardia
 }
