@@ -139,7 +139,7 @@ const crearTarea = async (req, res) => {
                 let tareaEnviar = await tareasPromisePool.query(`SELECT * FROM tareas WHERE id_tarea = ?`,[lastInsertedId]);
                 tareaEnviar = tareaEnviar[0][0];
                 // console.log(tareaEnviar)
-                //axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-tarea', {tarea: tareaEnviar})
+                axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-tarea', {tarea: tareaEnviar})
             });
             let userToken = await tareasPromisePool.query(`SELECT token FROM usuarios_token WHERE usuario = ?`,[propiedadesTarea.asignado_a]);
             console.log(userToken[0][0].token)
@@ -467,7 +467,7 @@ const crearTareaGuardia = async (req, res) => {
                  let tareaEnviar = await tareasPromisePool.query(`SELECT * FROM tareas WHERE id_tarea = ?`,[lastInsertedId]);
                  tareaEnviar = tareaEnviar[0][0];
                 // console.log(tareaEnviar)
-                //axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-tarea', {tarea: tareaEnviar})
+                axios.post(process.env.ENLACE_AURA+'/api/asignador/insert-tarea', {tarea: tareaEnviar})
             });
             // let userToken = await tareasPromisePool.query(`SELECT token FROM usuarios_token WHERE usuario = ?`,[propiedadesTarea.asignado_a]);
             // console.log(userToken[0][0].token)
