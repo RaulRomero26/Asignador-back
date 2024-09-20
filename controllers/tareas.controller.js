@@ -163,11 +163,11 @@ const crearTarea = async (req, res) => {
 
 const getAllTareas = async (req, res) => {
     try {
-        const { page = 1, per_page, asignadas,orden,mostrar,usuario,tipo, fechaInicio,fechaFin } = req.query;
+        const { page = 1, per_page, asignadas,orden,mostrar,usuario,tipo, fechaInicio,fechaFin,folioSic } = req.query;
         const offset = (page - 1) * per_page;
         let queryResult,totalRegisters;
 
-        console.log('SOLICITO: ',page , per_page, asignadas,orden,mostrar,usuario,tipo,fechaInicio,fechaFin )
+        console.log('SOLICITO: ',page , per_page, asignadas,orden,mostrar,usuario,tipo,fechaInicio,fechaFin,folioSic )
 
         let ordenString = '';
        
@@ -221,6 +221,11 @@ const getAllTareas = async (req, res) => {
             dateString = `AND DATE(fecha_asignacion) <= '${fechaFin}'`
         }
 
+        let folioString = '';
+        if(folioSic != ''){
+            folioString = `AND folio_sic = '${folioSic}'`
+        }
+
         if(asignadas != 'ALL'){
             console.log('asignadas diferente de all')
             console.log(`SELECT * FROM tareas WHERE asignado_a = ? AND ${mostrarString} ${ordenString}  LIMIT ?, ?;`)
@@ -235,9 +240,9 @@ const getAllTareas = async (req, res) => {
             )
         }else{
             console.log('else')
-            console.log(`SELECT * FROM tareas WHERE ${mostrarString} ${usuarioString} ${tipoString} ${dateString} ${ordenString} LIMIT ?, ?;`)
+            console.log(`SELECT * FROM tareas WHERE ${mostrarString} ${usuarioString} ${tipoString} ${dateString} ${folioString} ${ordenString} LIMIT ?, ?;`)
             queryResult = await tareasPromisePool.query(
-                `SELECT * FROM tareas WHERE ${mostrarString} ${usuarioString} ${tipoString} ${dateString} ${ordenString} LIMIT ?, ?;`,
+                `SELECT * FROM tareas WHERE ${mostrarString} ${usuarioString} ${tipoString} ${dateString} ${folioString} ${ordenString}  LIMIT ?, ?;`,
                 [offset, parseInt(per_page)]
             );
             
